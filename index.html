@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KDA Student Achievements</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+    }
+    nav {
+      background-color: #2c3e50;
+      padding: 10px;
+      display: flex;
+      gap: 15px;
+    }
+    nav button {
+      background: transparent;
+      border: none;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    nav button:hover {
+      text-decoration: underline;
+    }
+    main {
+      padding: 20px;
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      min-height: 80vh;
+    }
+    h1, h2, h3, h4 {
+      color: #2c3e50;
+    }
+    .student-card {
+      border: 1px solid #ccc;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      background: #fafafa;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input[type="text"], input[type="date"], select, input[type="file"] {
+      width: 100%;
+      padding: 6px;
+      margin-top: 4px;
+      box-sizing: border-box;
+    }
+    button.submit-btn {
+      margin-top: 15px;
+      padding: 8px 16px;
+      background-color: #2c3e50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      border-radius: 4px;
+    }
+    button.submit-btn:hover {
+      background-color: #1a2733;
+    }
+    ul {
+      list-style-type: disc;
+      padding-left: 20px;
+    }
+    .achievement {
+      margin: 10px 0;
+      padding: 10px;
+      border: 1px solid #ddd;
+      background-color: #fcfcfc;
+      border-radius: 5px;
+    }
+    .achievement img {
+      max-width: 150px;
+      display: block;
+      margin-top: 5px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <button onclick="showPage('home')">Home</button>
+    <button onclick="showPage('achievements')">Achievements</button>
+    <button onclick="showPage('students')">Student Profiles</button>
+    <button onclick="showPage('admin')">Admin Panel</button>
+  </nav>
+
+  <main>
+    <section id="home" class="page-section">
+      <h1>Welcome to KDA Student Achievements</h1>
+      <p>Celebrating excellence in academics, sports, arts, and leadership.</p>
+      <h2>Recent Achievements</h2>
+      <div id="recent-achievements"></div>
+    </section>
+
+    <section id="achievements" class="page-section" style="display:none">
+      <h1>All Achievements</h1>
+      <div id="all-achievements"></div>
+    </section>
+
+    <section id="students" class="page-section" style="display:none">
+      <h1>Student Profiles</h1>
+      <div id="student-profiles"></div>
+    </section>
+
+    <section id="admin" class="page-section" style="display:none">
+      <h1>Admin Panel</h1>
+      <h2>Add New Achievement</h2>
+      <form id="achievement-form">
+        <label for="title">Title:</label>
+        <input type="text" id="title" required />
+
+        <label for="student-select">Student:</label>
+        <select id="student-select" required></select>
+
+        <label for="category">Category:</label>
+        <select id="category" required>
+          <option>Academic</option>
+          <option>Sports</option>
+          <option>Arts</option>
+          <option>Leadership</option>
+        </select>
+
+        <label for="date">Date:</label>
+        <input type="date" id="date" required />
+
+        <label for="image">Image (optional):</label>
+        <input type="file" id="image" accept="image/*" />
+
+        <button type="submit" class="submit-btn">Add Achievement</button>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    const sampleStudents = [
+      { id: 1, name: 'Alice Johnson', class: '10-A', bio: 'Top scorer in math and science.' },
+      { id: 2, name: 'Bob Smith', class: '9-B', bio: 'Star athlete in basketball team.' },
+    ];
+
+    const sampleAchievements = [
+      { id: 1, title: 'Math Olympiad Winner', studentId: 1, category: 'Academic', date: '2025-03-20', image: '' },
+      { id: 2, title: 'Basketball Regional Champion', studentId: 2, category: 'Sports', date: '2025-04-15', image: '' },
+    ];
+
+    let students = JSON.parse(localStorage.getItem('students')) || sampleStudents;
+    let achievements = JSON.parse(localStorage.getItem('achievements')) || sampleAchievements;
+
+    function saveData() {
+      localStorage.setItem('students', JSON.stringify(students));
+      localStorage.setItem('achievements', JSON.stringify(achievements));
+    }
+
+    function showPage(pageId) {
+      document.querySelectorAll('.page-section').forEach(section => {
+        section.style.display = (section.id === pageId) ? 'block' : 'none';
+      });
+      if (pageId === 'home') renderHome();
+      if (pageId === 'achievements') renderAchievements();
+      if (pageId === 'students') renderStudents();
+      if (pageId === 'admin') renderAdmin();
+    }
+
+    function renderHome() {
+      const container = document.getElementById('recent-achievements');
+      container.innerHTML = '';
+      const recent = achievements.slice(-3).reverse();
+      recent.forEach(a => container.appendChild(createAchievementElement(a)));
+    }
+
+    function renderAchievements() {
+      const container = document.getElementById('all-achievements');
+      container.innerHTML = '';
+      achievements.forEach(a => container.appendChild(createAchievementElement(a)));
+    }
+
+    function renderStudents() {
+      const container = document.getElementById('student-profiles');
+      container.innerHTML = '';
+      students.forEach(student => {
+        const div = document.createElement('div');
+        div.className = 'student-card';
+
+        div.innerHTML = `<h3>${student.name} (${student.class})</h3>
+          <p>${student.bio}</p>
+          <h4>Achievements:</h4>`;
+
+        const list = achievements.filter(a => a.studentId === student.id);
+        list.forEach(a => div.appendChild(createAchievementElement(a)));
+
+        container.appendChild(div);
+      });
+    }
+
+    function renderAdmin() {
+      const select = document.getElementById('student-select');
+      select.innerHTML = '<option value="">Select student</option>';
+      students.forEach(s => {
+        const option = document.createElement('option');
+        option.value = s.id;
+        option.textContent = s.name;
+        select.appendChild(option);
+      });
+    }
+
+    function createAchievementElement(a) {
+      const student = students.find(s => s.id === a.studentId);
+      const div = document.createElement('div');
+      div.className = 'achievement';
+      div.innerHTML = `
+        <strong>${a.title}</strong><br/>
+        ${student ? student.name : 'Unknown'} (${a.category}) - ${a.date}
+      `;
+      if (a.image) {
+        const img = document.createElement('img');
+        img.src = a.image;
+        div.appendChild(img);
+      }
+      return div;
+    }
+
+    document.getElementById('achievement-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const title = document.getElementById('title').value.trim();
+      const studentId = parseInt(document.getElementById('student-select').value);
+      const category = document.getElementById('category').value;
+      const date = document.getElementById('date').value;
+      const imageInput = document.getElementById('image');
+
+      if (!title ||
